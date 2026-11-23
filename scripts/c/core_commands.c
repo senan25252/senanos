@@ -11,6 +11,22 @@ typedef struct {
 
 Variable var_table[MAX_VARS];
 
+void clear_screen(void) {
+    volatile unsigned char *video_memory =
+        (volatile unsigned char *)0xB8000;
+
+    for (int cell = 0; cell < 80 * 25; cell++) {
+        video_memory[cell * 2] = ' ';
+        video_memory[cell * 2 + 1] = (unsigned char)getcolor('w');
+    }
+
+    cursorX = 0;
+    cursorY = 0;
+    move_cursor(0);
+}
+
+
+
 void messageout(const char* message) {
     for (int i = 0; message[i] != '\0'; i++) {
         if (message[i] == '\n') {
@@ -35,39 +51,22 @@ void messageout(const char* message) {
     move_cursor((unsigned short)(80 * cursorY + cursorX));
 }
 
-void clear_screen() {
-    cursorX = 0;
-    cursorY = 0;
-    
-    while(cursorY < 25) {
-        while(cursorX < 80) {
-            set_cursor(' ');
-            cursorX++;
-        }
-        cursorX = 0;
-        cursorY++;
-    }
-
-    cursorX = 0;
-    cursorY = 0;
-    
 
 
-}
 
-long sum(int a, int b) {
+long sum(long a, long b) {
     return a + b;
 }
 
-long subtract(int a, int b) {
+long subtract(long a, long b) {
     return a - b;
 }
 
-long multiply(int a, int b) {
+long multiply(long a, long b) {
     return a * b;
 }
 
-long divide(int a, int b) {
+long divide(long a, long b) {
     if (b == 0) {
         return 0; // Handle division by zero
     }
@@ -124,12 +123,19 @@ void setVariable(const char* name, long value) {
 }
 
 // Değişkenin değerini okur
-long getVariable(const char* name) {
+int tryGetVariable(const char* name, long* value) {
     for (int i = 0; i < MAX_VARS; i++) {
         if (var_table[i].is_used && str_equal(var_table[i].name, name)) {
-            return var_table[i].value;
+            *value = var_table[i].value;
+            return 1;
         }
     }
-    return 0; // Bulunamazsa varsayılan 0
+    return 0;
+}
+
+long getVariable(const char* name) {
+    long value = 0;
+    tryGetVariable(name, &value);
+    return value;
 }
 

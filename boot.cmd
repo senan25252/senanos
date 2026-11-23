@@ -35,8 +35,8 @@ if %KERNEL_SECTORS% LSS 1 (
     echo Kernel image is empty.
     exit /b 1
 )
-if %KERNEL_SECTORS% GTR 17 (
-    echo Kernel exceeds the bootloader's 17-sector CHS read limit.
+if %KERNEL_SECTORS% GTR 54 (
+    echo Kernel exceeds the bootloader's 54-sector low-memory limit.
     exit /b 1
 )
 

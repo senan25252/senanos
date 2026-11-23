@@ -59,8 +59,7 @@ void set_cursor(char character) {
     video_memory[position * 2] = (unsigned char)character;
 }
 
-char get_cursor(void) {
-    unsigned short position = get_cursor_position();
+char get_screen_character(unsigned short position) {
     if (position >= 80 * 25) {
         return '\0';
     }
@@ -68,6 +67,10 @@ char get_cursor(void) {
     volatile unsigned char *video_memory =
         (volatile unsigned char *)0xB8000;
     return (char)video_memory[position * 2];
+}
+
+char get_cursor(void) {
+    return get_screen_character(get_cursor_position());
 }
 
 
