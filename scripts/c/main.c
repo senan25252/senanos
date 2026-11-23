@@ -1,8 +1,9 @@
 #include "kernel.h"
 
+
+
 int cursorX;
 int cursorY;
-
 char command[79];
 
 void updatecursor() {
@@ -23,7 +24,38 @@ void updatecursor() {
     move_cursor(80 * cursorY + cursorX);
 }
 
+static void messageout_long(long value) {
+    char text[sizeof(long) * 3 + 2];
+    unsigned long magnitude;
+    int length = 0;
+    int negative = value < 0;
+
+    magnitude = negative ? (unsigned long)(-(value + 1)) + 1UL
+                         : (unsigned long)value;
+
+    do {
+        text[length++] = (char)('0' + magnitude % 10UL);
+        magnitude /= 10UL;
+    } while (magnitude != 0);
+
+    if (negative) {
+        text[length++] = '-';
+    }
+
+    text[length] = '\0';
+    for (int left = 0, right = length - 1; left < right; left++, right--) {
+        char digit = text[left];
+        text[left] = text[right];
+        text[right] = digit;
+    }
+
+    messageout(text);
+}
+
 void user_main(void) {
+    setVariable("x", 10);
+    messageout_long(getVariable("x"));
+    messageout("\n");
     for (;;) {
         updatecursor();
         keyboard_poll();
